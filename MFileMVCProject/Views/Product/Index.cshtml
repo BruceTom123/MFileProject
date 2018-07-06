@@ -1,0 +1,95 @@
+﻿
+@model PagedList.IPagedList<MFileMVCProject.Models.Product>
+@using PagedList.Mvc;
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Products</h2>
+
+@using (Html.BeginForm("Index", "Product", FormMethod.Get))
+{
+    <p>
+        Find by name: @Html.TextBox("SearchString", ViewBag.CurrentFilter as string)
+        <input type="submit" value="Search" />
+    </p>
+}
+
+<table class="table">
+    <tr>
+        <th width="50px">
+            No
+        </th>
+        <th>
+            @Html.ActionLink("Title", "Index", new { sortOrder = ViewBag.NameSortParm, currentFilter = ViewBag.CurrentFilter })
+        </th>
+        <th width="0"></th>
+
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr class="productItemRow">
+            <td>
+                @Html.DisplayFor(modelItem => item.DisplayNumber)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Title)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Id)
+            </td>
+            <td>
+                @Html.ActionLink("Detail", "Detail", new { id = item.Id })
+            </td>
+        </tr>
+    }
+</table>
+<br />
+
+<p style="color:red; font-size:20px;">@ViewBag.Message</p>
+Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+
+@Html.PagedListPager(Model, page => Url.Action("Index",
+    new { page, sortOrder = ViewBag.CurrentSort, currentFilter = ViewBag.CurrentFilter }))
+
+@using (Html.BeginForm("Question", "Product", FormMethod.Get))
+{
+    <div class="row">
+        <div style="text-align:center">
+            <span style="margin-left:25%">selected product : </span>
+            <span id="selectedProduct" style="color:blue; margin-right:5%;"></span>
+
+            <button class="btn btn-success btn-lg" type="submit" disabled id="ProductSend"> G o </button>
+            <input type="hidden" name="productTitle" id="productTitle" />
+            <input type="hidden" name="productId" id="productId" />
+        </div>
+    </div>
+}
+
+    <style type="text/css">
+        .productItemRow:hover {
+            background-color: lightblue;
+            color: blue;
+        }
+
+        .Selected {
+            background-color: Highlight
+        }
+    </style>
+
+    <script>
+        $(document).ready(function () {
+            $('.productItemRow').on('click', function () {
+                $('.productItemRow').removeClass('Selected');
+                $(this).addClass('Selected');
+                $('#selectedProduct').text($(this).children().eq(1).html());
+                $('#productTitle').val($(this).children().eq(1).html());
+                $('#productId').val($(this).children().eq(2).html());
+                $('#ProductSend').removeAttr('disabled')
+            });
+        });
+
+    </script>

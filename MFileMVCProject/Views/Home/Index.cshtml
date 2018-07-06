@@ -1,0 +1,23 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+}
+
+
+@using (Html.BeginForm("GoLogin", "Home", FormMethod.Post))
+{
+
+<div class="landingPage">
+    <center>
+        <input class="btn btn-warning btn-lg" style="margin-top:550px;" type="submit" value=" Join Us! " />
+    </center>
+
+</div>
+}
+
+<style type="text/css">
+    .landingPage {
+        background-image: url('https://www.ema-partners.com/wp-content/uploads/2015/05/Business-Flow-Chart-000035083202_Large-1024x696.jpg');
+        background-size: cover;
+        height: 800px;
+    }
+</style>

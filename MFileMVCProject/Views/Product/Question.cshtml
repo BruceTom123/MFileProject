@@ -1,0 +1,160 @@
+﻿@model IEnumerable<MFileMVCProject.Models.Question>
+
+@{
+    ViewBag.Title = "Question";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<center>
+    <h2>Questions</h2>
+
+    @using (Html.BeginForm("Question", "Product", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+
+        <div class="form-horizontal">
+
+            <hr />
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+            @foreach (var item in Model)
+            {
+            <div class="form-group sequenceForm hiddenme">
+                <label class="control-label">@Html.DisplayFor(modelItem => item.Caption)</label>
+                <br /><br />
+                <input type="@Html.DisplayFor(modelItem => item.Type)" name="type-@Html.DisplayFor(modelItem => item.Sequence)" id="type-@Html.DisplayFor(modelItem => item.Sequence)" class="form-control" value="" />
+                <input type="hidden" class="hidden-sequence" id="@Html.DisplayFor(modelItem => item.Sequence)" value="@Html.DisplayFor(modelItem => item.Sequence)" />
+                <input type="hidden" name="value-@Html.DisplayFor(modelItem => item.Sequence)" id="value-@Html.DisplayFor(modelItem => item.Sequence)" value="" />
+                
+
+            </div>
+            }
+            <p id="err-message"></p>
+            <div class="form-group">
+                <div class="col-md-3"></div>
+                <div class="col-md-3">
+                    <a id="back-button" class="btn btn-default">Back</a>
+                </div>
+                <div class="col-md-3">
+                    <input type="button" value="Next" id="next-button" class="btn btn-primary" />
+                </div>
+                <div class="col-md-3"></div>
+            </div>
+        </div>
+    }
+</center>
+<style type="text/css">
+    .hiddenme {
+        display: none;
+    }
+</style>
+<script>   
+    var curSeq = 1; 
+    $(document).ready(function () {        
+        $('.sequenceForm').eq(0).removeClass('hiddenme');
+    });
+
+    $('#next-button').on('click', function () {
+
+        $('#err-message').text(""); // error message hide.
+        if ($('#type-' + curSeq.toString()).attr('type') != "Checkbox")  //form validation
+            if (!$('#type-' + curSeq.toString()).val()) {
+                $('#err-message').text("Please answer the question");
+                return;
+            }
+
+        if (curSeq < $('.sequenceForm').length) {  //not last form
+            $('.sequenceForm').addClass('hiddenme');
+            $('.sequenceForm').eq(curSeq).removeClass('hiddenme');
+        }
+        if ($('#type-' + (curSeq + 1).toString()).attr('type') == "PictureCompare") {
+            $('#type-' + (curSeq + 1).toString()).prop('type', 'Checkbox');
+            $('<img src="../Assets/img/' + (curSeq + 1).toString() + '.png" height="auto" style="margin-top:50px; max-width:600px;">').insertAfter('#type-' + (curSeq + 1).toString());
+        }
+        else if ($('#type-' + (curSeq + 1).toString()).attr('type') == "Picture") {
+            $('#type-' + (curSeq + 1).toString()).prop('type', 'file');
+            $('#type-' + (curSeq + 1).toString()).attr('capture', 'camera');
+            $('#type-' + (curSeq + 1).toString()).attr('accept', 'image/*');
+            $('<img height="auto" style="margin-top:50px;background-color:gray;max-width:600px;" id="capture-' + (curSeq + 1).toString() + '">').insertAfter('#type-' + (curSeq + 1).toString());
+        }
+        if ($('#type-' + curSeq.toString()).attr('type') == "Checkbox") {
+            $('#value-' + curSeq.toString()).val($('#type-' + curSeq.toString()).is(':checked').toString());
+        }        
+        else
+            $('#value-' + curSeq.toString()).val($('#type-' + curSeq.toString()).val());
+        if (curSeq == $('.sequenceForm').length) {
+            $(this).prop('type', 'submit');
+            }
+        
+        $('#back-button').removeAttr('href');
+
+        if ($('#type-' + curSeq.toString()).attr('type') == "file") {
+            fileUpload($('#type-' + curSeq.toString()), curSeq);
+            $('#value-' + curSeq.toString()).val("upload-" + curSeq + ".png");
+        }
+        
+        curSeq++;
+
+    });
+
+    $('#back-button').on('click', function () {
+        if (curSeq == 1) {
+            $(this).attr('href', '/products');
+        }
+        if (curSeq > 1) {
+            $('.sequenceForm').addClass('hiddenme');
+            $('.sequenceForm').eq(curSeq-2).removeClass('hiddenme');
+            curSeq--;
+        }
+        $('#next-button').prop('type', 'button');
+    });
+
+    $(':input').on('change', function () {
+        if ($(this).attr('type') != 'file') return;
+        readURL(this, $(this).siblings('img'));
+    });
+
+    function readURL(input, img) {
+
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                img.attr('src', e.target.result);
+            }            
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function fileUpload(input, seq) {
+        if (window.FormData !== undefined) {
+            var fileUpload = input.get(0);
+            var files = fileUpload.files;
+
+            // Create FormData object  
+            var fileData = new FormData();
+
+            // Looping over all files and add it to FormData object  
+            for (var i = 0; i < files.length; i++) {
+                fileData.append(files[i].name, files[i]);
+            }
+            // Adding one more key to FormData object  
+            fileData.append('username', seq);
+
+            $.ajax({
+                url: '@Url.Action("ImageUpload", "Product")',
+                type: "POST",
+                contentType: false, // Not to set any content header  
+                processData: false, // Not to process data  
+                data: fileData,
+                success: function (result) {
+                },
+                error: function (err) {
+                    alert(err.statusText);
+                }
+            });
+        } else {
+            alert("FormData is not supported.");
+        }  
+    }
+</script>
+
