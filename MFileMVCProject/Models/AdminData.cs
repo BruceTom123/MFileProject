@@ -28,5 +28,7 @@ namespace MFileMVCProject.Models
         public int MSerialId { get; set; }
         [Required]
         public int MQCReportId { get; set; }
+        [Required]
+        public int MOrderTypeId { get; set; }
     }
 }

@@ -12,34 +12,36 @@
     {
         @Html.AntiForgeryToken()
 
-        <div class="form-horizontal">
+    <div class="form-horizontal">
 
-            <hr />
-            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-            @foreach (var item in Model)
-            {
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        @foreach (var item in Model)
+        {
             <div class="form-group sequenceForm hiddenme">
                 <label class="control-label">@Html.DisplayFor(modelItem => item.Caption)</label>
                 <br /><br />
                 <input type="@Html.DisplayFor(modelItem => item.Type)" name="type-@Html.DisplayFor(modelItem => item.Sequence)" id="type-@Html.DisplayFor(modelItem => item.Sequence)" class="form-control" value="" />
                 <input type="hidden" class="hidden-sequence" id="@Html.DisplayFor(modelItem => item.Sequence)" value="@Html.DisplayFor(modelItem => item.Sequence)" />
                 <input type="hidden" name="value-@Html.DisplayFor(modelItem => item.Sequence)" id="value-@Html.DisplayFor(modelItem => item.Sequence)" value="" />
-                
-
             </div>
-            }
-            <p id="err-message"></p>
-            <div class="form-group">
-                <div class="col-md-3"></div>
-                <div class="col-md-3">
-                    <a id="back-button" class="btn btn-default">Back</a>
-                </div>
-                <div class="col-md-3">
-                    <input type="button" value="Next" id="next-button" class="btn btn-primary" />
-                </div>
-                <div class="col-md-3"></div>
+        }
+        <input type="hidden" id="productId" name="productId" value="@ViewBag.ProductId" />
+        <input type="hidden" id="productTitle" name="productTitle" value="@ViewBag.ProductTitle" />
+        <input type="hidden" id="modata" name="modata" value="@ViewBag.Modata" />
+        <input type="hidden" id="serial" name="serial" value="@ViewBag.Serial" />
+        <p id="err-message"></p>
+        <div class="form-group">
+            <div class="col-md-3"></div>
+            <div class="col-md-3">
+                <a id="back-button" class="btn btn-default">Back</a>
             </div>
+            <div class="col-md-3">
+                <input type="button" value="Next" id="next-button" class="btn btn-primary" />
+            </div>
+            <div class="col-md-3"></div>
         </div>
+    </div>
     }
 </center>
 <style type="text/css">
@@ -76,6 +78,9 @@
             $('#type-' + (curSeq + 1).toString()).attr('accept', 'image/*');
             $('<img height="auto" style="margin-top:50px;background-color:gray;max-width:600px;" id="capture-' + (curSeq + 1).toString() + '">').insertAfter('#type-' + (curSeq + 1).toString());
         }
+        else if ($('#type-' + (curSeq + 1).toString()).attr('type') == "Number") {
+            $('#type-' + (curSeq + 1).toString()).attr('step', 'any');         
+        }
         if ($('#type-' + curSeq.toString()).attr('type') == "Checkbox") {
             $('#value-' + curSeq.toString()).val($('#type-' + curSeq.toString()).is(':checked').toString());
         }        
@@ -97,9 +102,11 @@
     });
 
     $('#back-button').on('click', function () {
+        
         if (curSeq == 1) {
-            $(this).attr('href', '/products');
+            $(this).attr('href', "@Html.Raw(@Url.Action("MOdata", "Product", new { @productId= ViewBag.ProductId , @productTitle =  ViewBag.ProductTitle }))" );
         }
+                                     
         if (curSeq > 1) {
             $('.sequenceForm').addClass('hiddenme');
             $('.sequenceForm').eq(curSeq-2).removeClass('hiddenme');

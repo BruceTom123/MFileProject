@@ -223,6 +223,7 @@
     <Content Include="Views\Product\Detail.cshtml" />
     <Content Include="Views\Product\Question.cshtml" />
     <Content Include="Views\Setting\Index.cshtml" />
+    <Content Include="Views\Product\MOdata.cshtml" />
     <Content Include="Views\Setting\SetData.cshtml" />
   </ItemGroup>
   <ItemGroup>

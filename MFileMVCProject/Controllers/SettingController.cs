@@ -50,17 +50,26 @@ namespace MFileMVCProject.Controllers
             using (StreamWriter sw = new StreamWriter(fileLoc))
             {
                 sw.Write(tempdata);
+                sw.Close();
             }
+            
             return View(admindata);
         }
 
         private void setUserinfo()
-        {              
+        {
             string fileLoc = AppDomain.CurrentDomain.BaseDirectory + "Assets\\setting.bak";
-            StreamReader sr = new StreamReader(fileLoc);
-            string settingData = sr.ReadToEnd();
-            userinfo = JsonConvert.DeserializeObject<AdminData>(settingData);
-            sr.Close();
+            try
+            {
+                StreamReader sr = new StreamReader(fileLoc);
+                string settingData = sr.ReadToEnd();
+                userinfo = JsonConvert.DeserializeObject<AdminData>(settingData);
+                sr.Close();
+            }
+            catch(Exception ex)
+            {
+                userinfo = new AdminData();
+            }            
         }
     }
 }

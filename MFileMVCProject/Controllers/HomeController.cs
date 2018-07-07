@@ -22,7 +22,7 @@ namespace MFileMVCProject.Controllers
         }
         public ActionResult About()
         {
-            ViewBag.Message = "Your application description page.";
+            ViewBag.Message = "ENTTEC COM.";
 
             return View();
         }

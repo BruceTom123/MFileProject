@@ -15,14 +15,21 @@ namespace MFileMVCProject.Controllers
     public class ProductController : Controller
     {
         private readonly ProductRepository productRepository = new ProductRepository();
-        private List<Question> questions = new List<Question>();
+       
         public async Task<ActionResult> Index(string sortOrder, string currentFilter, string searchString, int? page)
         {
             if (string.IsNullOrEmpty(Session["Username"] as string))
             {
                 return RedirectToRoute("Login");
             }
-            await productRepository.SetProductListAsync();
+
+            if (TempData.ContainsKey("PdfSaveResult")) //saved result notification
+            {
+                string saveresult = TempData["PdfSaveResult"].ToString();
+                TempData["PdfSaveResult"] = "";
+                ViewBag.SaveResultMessage = saveresult;
+            }
+               
             ViewBag.CurrentSort = sortOrder;
             ViewBag.NameSortParm = String.IsNullOrEmpty(sortOrder) ? "title_desc" : "Title";
             ViewBag.NameSortParm = sortOrder=="Title" ? "title_desc" : "Title";
@@ -38,9 +45,15 @@ namespace MFileMVCProject.Controllers
             }
 
             ViewBag.CurrentFilter = searchString;
+                        
+            await productRepository.SetProductListAsync();
 
-            if (productRepository.GetProducts().Count == 0)  //when the mserver info is wrong, error message occures
+            //when the m-file server info is wrong, the error message occurs
+            if (productRepository.GetProducts().Count == 0)
+            {
                 ViewBag.Message = "Your m-file server info is wrong.";
+                return View(new List<Product>().ToPagedList(1, 1));
+            }
 
             var viewProductList = from s in productRepository.GetProducts() select s;
             if (!String.IsNullOrEmpty(searchString))
@@ -89,25 +102,41 @@ namespace MFileMVCProject.Controllers
             return RedirectToAction("Index");
         }
 
-        public async Task<ActionResult> Question(string productTitle, string productId)
+        public async Task<ActionResult> MOdata(string productTitle, string productId, string modata, string serial)
         {
-            string title = productTitle.Trim();
-            string proId = productId.Trim();
-            questions = await productRepository.GetQuestionFromProductAsync(productTitle.Trim());
-            if (questions.Count == 0)
-                return RedirectToAction("Index");
-            Session["ProductTitle"] = productTitle.Trim();
-            Session["ProductId"] = productId.Trim();
-            return View(questions);
+            ViewBag.Message = "";
+            List<string> modatas;
+            if (!String.IsNullOrEmpty(serial))
+            {
+                return RedirectToAction("Question", new { productTitle, productId, modata, serial });
+            }
+            modatas = await productRepository.GetModataAsync(productId.Trim());
+            ViewBag.Modata = modatas;
+            ViewBag.ProductTitle = productTitle.Trim();
+            ViewBag.ProductId = productId.Trim();
+            if (Request.HttpMethod == "POST")
+            {
+                ViewBag.Message = "Serial can not be empty";
+            }
+            return View();
         }
 
-        [HttpPost]
-        public async Task<ActionResult> Question()
+        public async Task<ActionResult> Question(string productTitle, string productId, string modata, string serial)
         {
-            string productTitle = Session["ProductTitle"].ToString();
-            string productId = Session["ProductId"].ToString();
-            questions = await productRepository.GetQuestionFromProductAsync(productTitle);
-            if(questions.Count == 0) return RedirectToRoute("Products");
+            ViewBag.ProductId = productId.Trim();
+            ViewBag.ProductTitle = productTitle.Trim();
+            ViewBag.Modata = modata;
+            ViewBag.Serial = serial;
+            List<Question> questions = new List<Question>();
+            questions = await productRepository.GetQuestionFromProductAsync(productTitle.Trim());
+
+            if (Request.HttpMethod == "GET")
+            {
+                if (questions.Count == 0)
+                    return RedirectToAction("Index");
+                return View(questions);
+            }
+            if (questions.Count == 0) return RedirectToRoute("Products");
             string[] keys = Request.Form.AllKeys;
             var value = "";
             for (int i = 0; i < keys.Length; i++)
@@ -118,7 +147,12 @@ namespace MFileMVCProject.Controllers
                 int index = Int32.Parse(keyname.Split('-')[1]);
                 questions[index - 1].Value = value;
             }
-            await productRepository.SavePdftoMfile(questions, productTitle, productId);
+            string username = Session["Username"].ToString();
+            bool saveResult = await productRepository.SavePdftoMfile(questions, productTitle.Trim(), productId.Trim(), modata, serial, username);
+            if(saveResult)
+                TempData["PdfSaveResult"] = "Your Answers are saved successfully!";
+            else
+                TempData["PdfSaveResult"] = "Your Answers are not saved because of Server connection info!";
             return RedirectToRoute("Products");
         }
 

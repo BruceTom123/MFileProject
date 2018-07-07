@@ -10,9 +10,19 @@ namespace MFileMVCProject.Controllers
 {
     public class LoginController : Controller
     {
+
+        public List<User> users = new List<User>()
+        {
+            new User("vlad", "birthday"),
+            new User("Harry", "harry"),
+            new User("Nicolas", "nicolas"),
+            new User("angel", "angel"),
+            new User("bruce", "bruce"),
+            new User("mfile", "mfile"),
+        };
+
         // GET: Login
         User sampleuser = new User();
-        ProductRepository productRepository = new ProductRepository();
         public ActionResult Index()
         {
             if (!string.IsNullOrEmpty(Session["Username"] as string))
@@ -30,16 +40,16 @@ namespace MFileMVCProject.Controllers
             if (ModelState.IsValid)
             {
                 ViewBag.Message = "";
-                if(productRepository.CheckAuth(user.Username, user.Password))
+                foreach (User curuser in users)
                 {
-                    Session["Username"] = user.Username;
-                    Session["Password"] = user.Password;                    
-                    return RedirectToRoute("Products");
+                    if (curuser.Username == user.Username && curuser.Password == user.Password)
+                    {
+                        Session["Username"] = user.Username;
+                        Session["Password"] = user.Password;                    
+                        return RedirectToRoute("Products");
+                    }                        
                 }
-                else
-                {
-                    ViewBag.Message = "Your username or password does not match!";
-                }
+                ViewBag.Message = "Your username or password does not match!";
             }
             return View(user);
         }

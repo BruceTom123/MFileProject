@@ -1,0 +1,53 @@
+﻿@using MFileMVCProject.Models
+@{
+    ViewBag.Title = "MOdata";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var modata = ViewBag.Modata;
+}
+    @using (Html.BeginForm("MOdata", "Product", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+        <div class="form-horizontal">
+            <h4>MO and Serial Setting</h4>
+            <hr />
+           
+            <div class="form-group">
+
+                <label for="modata" class="control-label col-md-3 ">MO:</label>
+                <div class="col-md-9">
+                    <select class="form-control" id="modata" name="modata">
+                        @foreach (var item in modata)
+                        {
+                            <option>@item</option>
+                        }
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="serial" class="control-label col-md-3">Serial:</label>
+                <div class="col-md-9">
+                    <input type="text" class="form-control" id="serial" name="serial" />
+                    <p style="color:red">@ViewBag.Message</p>
+                </div>
+            </div>
+
+        <input type="hidden" id="productId" name="productId" value="@ViewBag.ProductId" />
+        <input type="hidden" id="productTitle" name="productTitle" value="@ViewBag.ProductTitle" />
+
+        <div class="form-group">
+            <div class="col-md-3"></div>
+            <div class="col-md-3" style="text-align:center">
+                <a id="back-product" class="btn btn-default" style="margin-right:60px">Back</a>
+                <input type="submit" value="Next" id="next-button" class="btn btn-primary right" />
+            </div>
+            <div class="col-md-6"></div>
+        </div>
+    </div>
+    }
+
+<script>
+    $('#back-product').on('click', function () {
+            $(this).attr('href', '/products');
+    });
+</script>
