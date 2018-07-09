@@ -152,6 +152,7 @@ namespace MFileMVCProject.Repository
                 return;
             var url = new Uri(userinfo.BaseUrl + "REST/objects.aspx?q=json");
             Product tempProduct;
+            List<String> productTitles = new List<string>();
             var responseBody = await client.GetStringAsync(url);   
             // Start the request.
             try
@@ -164,15 +165,19 @@ namespace MFileMVCProject.Repository
                         userinfo.MProductPropertyId.ToString());
                     responseBody = await client.GetStringAsync(jsonUrl);
                     var proPropertyJson = JsonConvert.DeserializeObject<PropertyValue>(responseBody);
-                    tempProduct = new Product() { Id = proPropertyJson.TypedValue.Lookups[0].Item, Title = proPropertyJson.TypedValue.DisplayValue, TypeId = userinfo.MProductTypeId };
+                    tempProduct = new Product() { Id = proPropertyJson.TypedValue.Lookups[0].Item, Title = proPropertyJson.TypedValue.DisplayValue, TypeId = userinfo.MProductTypeId, JsonInfo = result.Title };
                     if (tempProduct is null) continue;
+                    if (productTitles.Count > 0 && productTitles.IndexOf(tempProduct.Title) >= 0) continue;                    
                     productList.Add(tempProduct);
+                    productTitles.Add(tempProduct.Title);
                 }
-            }
+            }            
             catch (Exception ex)
             {
+                productTitles.Clear();
                 return;
             }
+            productTitles.Clear();
         }
 
         public async Task<bool> SavePdftoMfile(List<Question> questions, string productTitle, string productId, string modata, string serial, string username)
@@ -461,83 +466,83 @@ namespace MFileMVCProject.Repository
             // Ensure the extension is set.
             // NOTE: This must be without the dot!
             uploadInfo.Extension = localFileToUpload.Extension.Substring(1);
-
-            // Add the upload to the objectCreationInfo.
-            var objectCreationInfo = new ObjectCreationInfo()
-            {
-                PropertyValues = new[]
-                {
-                    new PropertyValue()
-                    {
-                        PropertyDef = 100, // The built-in "Class" property Id.
-			            TypedValue = new TypedValue()
-                        {
-                            DataType = MFDataType.Lookup,
-                            Lookup = new Lookup()
-                            {
-                                Item = userinfo.MQCReportId, // The built-in "QC Report" class Id.
-					            Version = -1 // Work around the bug detailed below.                                
-                            }
-                        }
-                    },
-                    new PropertyValue()
-                    {
-                        PropertyDef = userinfo.MProductPropertyId, // The built-in "Class" property Id.
-			            TypedValue = new TypedValue()
-                        {
-                            DataType = MFDataType.MultiSelectLookup,
-                            Lookups = new List<Lookup>()
-                            {
-                                new Lookup()
-                                {
-                                    Item = int.Parse(productId),
-                                    Version = -1,
-                                    DisplayValue = productTitle
-                                }
-                            }
-                        }
-                    },
-                    new PropertyValue()
-                    {
-                        PropertyDef = 0, // The built-in "Name or Title" property Id.
-			            TypedValue =  new TypedValue()
-                        {
-                            DataType = MFDataType.Text,
-                            Value = serial // here the pdf file title decide
-                        }
-                    },
-                    new PropertyValue()
-                    {
-                        PropertyDef = userinfo.MSerialId, // The Serial property Id.
-			            TypedValue =  new TypedValue()
-                        {
-                            DataType = MFDataType.Text,
-                            Value = serial   // here the serial of pdf file is decided as you want.
-                        }
-                    }
-                }
-            };
-
-            objectCreationInfo.Files = new UploadInfo[]
-            {
-                uploadInfo
-            };
-            // Serialise using JSON.NET (use Nuget to add a reference if needed).
-            var stringContent = JsonConvert.SerializeObject(objectCreationInfo);
-
-            // Create the content for the web request.
-            var content = new System.Net.Http.StringContent(stringContent, Encoding.UTF8, "application/json");
-
-            // We are creating a document
-            const int documentObjectTypeId = 0; //
-
-            // Execute the POST.
-            var httpResponseMessage = await client.PostAsync(new Uri(userinfo.BaseUrl + "REST/objects/" + documentObjectTypeId + ".aspx"), content);
-            // Extract the value.
-            var objectVersion = JsonConvert.DeserializeObject<ObjectVersion>(
-                await httpResponseMessage.Content.ReadAsStringAsync());
             try
             {
+                    // Add the upload to the objectCreationInfo.
+                    var objectCreationInfo = new ObjectCreationInfo()
+                {
+                    PropertyValues = new[]
+                    {
+                        new PropertyValue()
+                        {
+                            PropertyDef = 100, // The built-in "Class" property Id.
+			                TypedValue = new TypedValue()
+                            {
+                                DataType = MFDataType.Lookup,
+                                Lookup = new Lookup()
+                                {
+                                    Item = userinfo.MQCReportId, // The built-in "QC Report" class Id.
+					                Version = -1 // Work around the bug detailed below.                                
+                                }
+                            }
+                        },
+                        new PropertyValue()
+                        {
+                            PropertyDef = userinfo.MProductPropertyId, // The built-in "Class" property Id.
+			                TypedValue = new TypedValue()
+                            {
+                                DataType = MFDataType.MultiSelectLookup,
+                                Lookups = new List<Lookup>()
+                                {
+                                    new Lookup()
+                                    {
+                                        Item = int.Parse(productId),
+                                        Version = -1,
+                                        DisplayValue = productTitle
+                                    }
+                                }
+                            }
+                        },
+                        new PropertyValue()
+                        {
+                            PropertyDef = 0, // The built-in "Name or Title" property Id.
+			                TypedValue =  new TypedValue()
+                            {
+                                DataType = MFDataType.Text,
+                                Value = serial // here the pdf file title decide
+                            }
+                        },
+                        new PropertyValue()
+                        {
+                            PropertyDef = userinfo.MSerialId, // The Serial property Id.
+			                TypedValue =  new TypedValue()
+                            {
+                                DataType = MFDataType.Text,
+                                Value = serial   // here the serial of pdf file is decided as you want.
+                            }
+                        }
+                    }
+                };
+
+                objectCreationInfo.Files = new UploadInfo[]
+                {
+                    uploadInfo
+                };
+                // Serialise using JSON.NET (use Nuget to add a reference if needed).
+                var stringContent = JsonConvert.SerializeObject(objectCreationInfo);
+
+                // Create the content for the web request.
+                var content = new System.Net.Http.StringContent(stringContent, Encoding.UTF8, "application/json");
+
+                // We are creating a document
+                const int documentObjectTypeId = 0; //
+
+                // Execute the POST.
+                var httpResponseMessage = await client.PostAsync(new Uri(userinfo.BaseUrl + "REST/objects/" + documentObjectTypeId + ".aspx"), content);
+                // Extract the value.
+                var objectVersion = JsonConvert.DeserializeObject<ObjectVersion>(
+                    await httpResponseMessage.Content.ReadAsStringAsync());
+           
                 int fileId = objectVersion.ObjVer.ID;
             }
             catch
