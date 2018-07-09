@@ -32,18 +32,15 @@
         <input type="hidden" id="serial" name="serial" value="@ViewBag.Serial" />
         <p id="err-message"></p>
         <div class="form-group">
-            <div class="col-md-3"></div>
-            <div class="col-md-3">
-                <a id="back-button" class="btn btn-default">Back</a>
+            <div style="text-align:center">
+                <a id="back-button" class="btn btn-default" style="margin-right:100px">Back</a>
+                <input type="button" value="Next" id="next-button" class="btn btn-primary right" />
             </div>
-            <div class="col-md-3">
-                <input type="button" value="Next" id="next-button" class="btn btn-primary" />
-            </div>
-            <div class="col-md-3"></div>
         </div>
     </div>
     }
 </center>
+
 <style type="text/css">
     .hiddenme {
         display: none;
@@ -70,13 +67,13 @@
         }
         if ($('#type-' + (curSeq + 1).toString()).attr('type') == "PictureCompare") {
             $('#type-' + (curSeq + 1).toString()).prop('type', 'Checkbox');
-            $('<img src="../Assets/img/' + (curSeq + 1).toString() + '.png" height="auto" style="margin-top:50px; max-width:600px;">').insertAfter('#type-' + (curSeq + 1).toString());
+            $('<img src="../Assets/img/' + (curSeq + 1).toString() + '.png" height="auto" style="width:100%; margin-top:50px; max-width:600px;">').insertAfter('#type-' + (curSeq + 1).toString());
         }
         else if ($('#type-' + (curSeq + 1).toString()).attr('type') == "Picture") {
             $('#type-' + (curSeq + 1).toString()).prop('type', 'file');
             $('#type-' + (curSeq + 1).toString()).attr('capture', 'camera');
             $('#type-' + (curSeq + 1).toString()).attr('accept', 'image/*');
-            $('<img height="auto" style="margin-top:50px;background-color:gray;max-width:600px;" id="capture-' + (curSeq + 1).toString() + '">').insertAfter('#type-' + (curSeq + 1).toString());
+            $('<img height="auto" style="width:100%; margin-top:50px;background-color:gray;max-width:600px;" id="capture-' + (curSeq + 1).toString() + '">').insertAfter('#type-' + (curSeq + 1).toString());
         }
         else if ($('#type-' + (curSeq + 1).toString()).attr('type') == "Number") {
             $('#type-' + (curSeq + 1).toString()).attr('step', 'any');         
