@@ -24,7 +24,7 @@
         <th>
             @Html.ActionLink("Title", "Index", new { sortOrder = ViewBag.NameSortParm, currentFilter = ViewBag.CurrentFilter })
         </th>
-        <th width="0"></th>
+        <th >Json Data</th>
 
         <th></th>
     </tr>
@@ -39,7 +39,7 @@
                 @Html.DisplayFor(modelItem => item.Title)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Id)
+                @Html.DisplayFor(modelItem => item.JsonInfo)
             </td>
             <td>
                 @Html.ActionLink("Detail", "Detail", new { id = item.Id })
@@ -49,6 +49,8 @@
 </table>
 <br />
 <input type="hidden" id="savedResult" name="savedResult" value="@ViewBag.SaveResultMessage" />
+<input type="hidden" id="questionResult" name="questionResult" value="@ViewBag.QuestionResult" />
+
 <p style="color:red; font-size:20px;">@ViewBag.Message</p>
 Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
 
@@ -69,32 +71,35 @@ Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.Page
     </div>
 }
 
-    <style type="text/css">
-        .productItemRow:hover {
-            background-color: lightblue;
-            color: blue;
-        }
+<style type="text/css">
+    .productItemRow:hover {
+        background-color: lightblue;
+        color: blue;
+    }
 
-        .Selected {
-            background-color: Highlight
-        }
-    </style>
+    .Selected {
+        background-color: Highlight
+    }
+</style>
 
-    <script>
-        $(document).ready(function () {
-            if ($('#savedResult').val().length > 0) {
-                alert($('#savedResult').val());
-                $('#savedResult').val("");
-            }
-                
-            $('.productItemRow').on('click', function () {
-                $('.productItemRow').removeClass('Selected');
-                $(this).addClass('Selected');
-                $('#selectedProduct').text($(this).children().eq(1).html());
-                $('#productTitle').val($(this).children().eq(1).html());
-                $('#productId').val($(this).children().eq(2).html());
-                $('#ProductSend').removeAttr('disabled')
-            });
+<script>
+    $(document).ready(function () {
+        if ($('#savedResult').val().length > 0) {
+            alert($('#savedResult').val());
+            $('#savedResult').val("");
+        }
+        if ($('#questionResult').val().length > 0) {
+            alert($('#questionResult').val());
+            $('#questionResult').val("");
+        } 
+        $('.productItemRow').on('click', function () {
+            $('.productItemRow').removeClass('Selected');
+            $(this).addClass('Selected');
+            $('#selectedProduct').text($(this).children().eq(1).html());
+            $('#productTitle').val($(this).children().eq(1).html());
+            $('#productId').val($(this).children().eq(2).html());
+            $('#ProductSend').removeAttr('disabled')
         });
+    });
 
-    </script>
+</script>

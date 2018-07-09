@@ -13,6 +13,6 @@ namespace MFileMVCProject.Models
         public string ProductCode { get; set; }
         public string ProductExtendedName { get; set; }
         public int DisplayNumber { get; set; }
-    }
-    
+        public string JsonInfo { get; set; }
+    }    
 }

@@ -29,6 +29,12 @@ namespace MFileMVCProject.Controllers
                 TempData["PdfSaveResult"] = "";
                 ViewBag.SaveResultMessage = saveresult;
             }
+            if (TempData.ContainsKey("Question"))
+            {
+                string questionResult = TempData["Question"].ToString();
+                TempData["Question"] = "";
+                ViewBag.QuestionResult = questionResult;
+            }
                
             ViewBag.CurrentSort = sortOrder;
             ViewBag.NameSortParm = String.IsNullOrEmpty(sortOrder) ? "title_desc" : "Title";
@@ -136,7 +142,12 @@ namespace MFileMVCProject.Controllers
                     return RedirectToAction("Index");
                 return View(questions);
             }
-            if (questions.Count == 0) return RedirectToRoute("Products");
+            if (questions.Count == 0)
+            {
+                TempData["Question"] = "Invalid Json Data for this Product!";
+                return RedirectToRoute("Products");
+            }
+            
             string[] keys = Request.Form.AllKeys;
             var value = "";
             for (int i = 0; i < keys.Length; i++)
