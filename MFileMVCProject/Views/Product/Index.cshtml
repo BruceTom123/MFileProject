@@ -24,6 +24,7 @@
         <th>
             @Html.ActionLink("Title", "Index", new { sortOrder = ViewBag.NameSortParm, currentFilter = ViewBag.CurrentFilter })
         </th>
+        <th width="0"></th>
         <th >Json Data</th>
 
         <th></th>
@@ -31,20 +32,23 @@
 
     @foreach (var item in Model)
     {
-        <tr class="productItemRow">
-            <td>
-                @Html.DisplayFor(modelItem => item.DisplayNumber)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Title)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.JsonInfo)
-            </td>
-            <td>
-                @Html.ActionLink("Detail", "Detail", new { id = item.Id })
-            </td>
-        </tr>
+    <tr class="productItemRow">
+        <td>
+            @Html.DisplayFor(modelItem => item.DisplayNumber)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Title)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Id)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.JsonInfo)
+        </td>
+        <td>
+            @Html.ActionLink("Detail", "Detail", new { id = item.Id })
+        </td>
+    </tr>
     }
 </table>
 <br />
